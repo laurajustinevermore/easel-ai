@@ -497,7 +497,116 @@ body {
   color: var(--gold);
   letter-spacing: 0.1em;
 }
+.task-failed-content {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at center, rgba(176, 112, 104, 0.08) 0%, transparent 60%),
+    var(--bg-primary);
+}
+.task-failed-icon {
+  color: var(--danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-failed-icon .icon { width: 20px; height: 20px; }
+.task-failed-label {
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+.task-failed-summary {
+  max-width: 220px;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 11, 9, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 120;
+}
+.modal-card {
+  width: min(680px, 100%);
+  max-height: min(78vh, 720px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(26, 25, 22, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  box-shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.55);
+}
+.modal-header,
+.modal-footer {
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-footer {
+  border-bottom: none;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.modal-close {
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+}
+.modal-body {
+  padding: 18px;
+  overflow: auto;
+}
+.modal-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  background: rgba(12, 11, 9, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+:root.light .modal-backdrop {
+  background: rgba(60, 46, 28, 0.22);
+}
+:root.light .modal-card {
+  background: var(--surface-glass-strong);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: 0 20px 48px -26px rgba(68, 52, 34, 0.28);
+}
+:root.light .modal-code {
+  background: rgba(86, 70, 54, 0.04);
+}
 
 /* ---- Prompt bar ---- */
 .prompt-bar {

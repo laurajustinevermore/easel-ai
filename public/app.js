@@ -218,6 +218,52 @@ function formatTime(d) {
   return new Date(d).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
 }
 
+function summarizeTaskError(message) {
+  const text = String(message ?? 'Generation failed').replace(/\s+/g, ' ').trim();
+  if (!text) return 'Generation failed';
+  if (/content[^a-z0-9]*policy|content[^a-z0-9]*violation|safety/i.test(text)) {
+    return 'Blocked by content policy';
+  }
+  if (/unsupported mimetype|mime ?type/i.test(text)) {
+    return 'Unsupported image format';
+  }
+  return text.length > 96 ? `${text.slice(0, 93)}…` : text;
+}
+
+function showErrorModal(title, message) {
+  closeErrorModal();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'error-modal';
+  backdrop.addEventListener('click', closeErrorModal);
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-card';
+  modal.addEventListener('click', (e) => e.stopPropagation());
+  modal.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-title">${escapeHtml(title)}</div>
+      </div>
+      <button type="button" class="modal-close btn-icon" title="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-code">${escapeHtml(message || 'No additional details provided.')}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="error-modal-close-btn">Close</button>
+    </div>`;
+
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  modal.querySelector('.modal-close')?.addEventListener('click', closeErrorModal);
+  modal.querySelector('#error-modal-close-btn')?.addEventListener('click', closeErrorModal);
+}
+
+function closeErrorModal() {
+  document.getElementById('error-modal')?.remove();
+}
+
 function taskCardHtml(task) {
   const count = task.variants?.length || task.variant_count || 1;
   const pending = task.status === 'pending';
@@ -229,7 +275,12 @@ function taskCardHtml(task) {
         <div class="task-pending-elapsed">0s</div>
       </div>`
     : failed
-      ? `<div style="color: var(--danger); padding: 20px; text-align: center;">${escapeHtml(task.error || 'failed')}</div>`
+      ? `<div class="task-failed-content">
+          <div class="task-failed-icon">${icon('triangle-alert', { size: 20 })}</div>
+          <div class="task-failed-label">generation failed</div>
+          <div class="task-failed-summary">${escapeHtml(summarizeTaskError(task.error))}</div>
+          <button type="button" class="pill pill-danger" data-action="error-details">More info</button>
+        </div>`
       : task.variants
           .map(
             (v) =>
@@ -326,6 +377,9 @@ function renderGallery() {
           await api(`/api/tasks/${taskId}`, { method: 'PATCH', body: { trashed: false } });
           toast('Restored');
           await refreshView();
+        } else if (action === 'error-details') {
+          const task = state.tasks.find((t) => t.id === taskId);
+          showErrorModal('Generation error', task?.error || 'No additional details provided.');
         }
       } catch (e) {
         toast(e.message, 'err');

@@ -22,6 +22,19 @@ mkdirSync(REFS_DIR, { recursive: true });
 const ALLOWED_UPLOAD_EXT = new Set(['.png', '.webp', '.jpg', '.jpeg']);
 const MAX_UPLOAD_BYTES = 24 * 1024 * 1024; // 24MB, slightly under OpenAI's 25MB limit
 
+function mimeTypeForExt(ext: string): string {
+  switch (ext.toLowerCase()) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.webp':
+      return 'image/webp';
+    case '.png':
+    default:
+      return 'image/png';
+  }
+}
+
 const app = new Hono();
 
 // ---- Uploads (reference images) ----
@@ -416,9 +429,11 @@ app.post('/api/generate', async (c) => {
     let rawResponse: Response | null = null;
     if (referencePaths.length > 0) {
       const uploads = await Promise.all(
-        referencePaths.map(async (rel) =>
-          toFile(createReadStream(join(REFS_DIR, rel)), rel.split(/[/\\]/).pop() ?? 'ref.png'),
-        ),
+        referencePaths.map(async (rel) => {
+          const filename = rel.split(/[/\\]/).pop() ?? 'ref.png';
+          const mimeType = mimeTypeForExt(extname(filename));
+          return toFile(createReadStream(join(REFS_DIR, rel)), filename, { type: mimeType });
+        }),
       );
       const wrapped = await openai.images
         .edit({
