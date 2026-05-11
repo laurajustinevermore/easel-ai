@@ -152,6 +152,13 @@ body {
 .theme-toggle {
   margin-left: auto;
 }
+
+:root.light {
+  --surface-glass: rgba(255, 252, 247, 0.82);
+  --surface-glass-strong: rgba(249, 245, 238, 0.94);
+  --surface-glass-hover: rgba(242, 236, 226, 0.98);
+  --surface-shadow: 0 10px 30px -18px rgba(68, 52, 34, 0.22);
+}
 .brand-text {
   display: flex;
   flex-direction: column;
@@ -314,6 +321,16 @@ body {
   border-color: rgba(196, 168, 114, 0.25);
   background: rgba(33, 31, 27, 0.75);
   box-shadow: 0 6px 32px -12px rgba(196, 168, 114, 0.18);
+}
+:root.light .task-card {
+  background: var(--surface-glass);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: var(--surface-shadow);
+}
+:root.light .task-card:hover {
+  background: var(--surface-glass-hover);
+  border-color: rgba(184, 147, 26, 0.28);
+  box-shadow: 0 14px 34px -20px rgba(68, 52, 34, 0.3);
 }
 .task-card:hover .task-variants img { transform: scale(1.02); }
 .task-card.pending,
@@ -495,6 +512,10 @@ body {
   gap: 10px;
   min-height: var(--prompt-bar-min-height);
 }
+:root.light .prompt-bar {
+  background: rgba(247, 242, 235, 0.96);
+  box-shadow: 0 -8px 24px -22px rgba(68, 52, 34, 0.35);
+}
 .prompt-row {
   display: flex;
   align-items: flex-end;
@@ -610,6 +631,11 @@ body {
   align-items: center;
   justify-content: center;
 }
+:root.light .ref-thumb .remove {
+  background: rgba(250, 249, 247, 0.92);
+  color: var(--gold-dim);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+}
 .ref-thumb .remove:hover { color: var(--danger); }
 .ref-thumb-label {
   position: absolute;
@@ -624,6 +650,10 @@ body {
   background: rgba(12, 11, 9, 0.85);
   text-align: center;
   text-transform: uppercase;
+}
+:root.light .ref-thumb-label {
+  color: var(--text-secondary);
+  background: rgba(250, 249, 247, 0.92);
 }
 .chip {
   display: inline-flex;
@@ -674,6 +704,11 @@ body {
   min-width: 180px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   animation: pop-in 0.15s ease;
+}
+:root.light .popover {
+  background: var(--surface-glass-strong);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: 0 12px 28px -16px rgba(68, 52, 34, 0.28);
 }
 @keyframes pop-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
 .popover-title {
@@ -765,8 +800,13 @@ body {
   align-items: center;
   transition: all var(--transition-fast);
 }
+:root.light .preset-item {
+  background: rgba(86, 70, 54, 0.05);
+  border-color: rgba(112, 93, 67, 0.08);
+}
 .preset-item:hover { background: rgba(33, 31, 27, 0.6); border-color: var(--border-hover); }
 .preset-item.active { border-color: rgba(196, 168, 114, 0.4); background: rgba(196, 168, 114, 0.06); }
+:root.light .preset-item:hover { background: rgba(86, 70, 54, 0.09); }
 .preset-item-name {
   font-size: 0.85rem;
   color: var(--text-accent);
@@ -792,6 +832,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+:root.light .preset-detail {
+  background: var(--surface-glass);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: var(--surface-shadow);
 }
 .preset-detail-header {
   display: flex;
@@ -855,6 +900,9 @@ body {
   background: rgba(12, 11, 9, 0.4);
   border: 1px dashed var(--border);
   border-radius: 12px;
+}
+:root.light .preset-ref-upload {
+  background: rgba(86, 70, 54, 0.04);
 }
 .preset-ref-upload img {
   width: 96px;
@@ -975,6 +1023,12 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   max-width: 360px;
   animation: pop-in 0.3s ease;
 }
+:root.light .toast {
+  background: var(--surface-glass-strong);
+  color: var(--gold-dim);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: 0 10px 24px -16px rgba(68, 52, 34, 0.28);
+}
 .toast.err { color: var(--danger); border-color: rgba(176, 112, 104, 0.3); }
 
 /* ---- Empty states ---- */
@@ -1058,6 +1112,10 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   justify-content: center;
   transition: all var(--transition-fast);
 }
+:root.light .detail-copy-btn {
+  background: rgba(250, 249, 247, 0.94);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+}
 .detail-copy-btn:hover { color: var(--gold); border-color: var(--gold); }
 .detail-copy-btn .icon { width: 14px; height: 14px; }
 .detail-variants {
@@ -1098,6 +1156,11 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   white-space: pre-wrap;
   line-height: 1.6;
 }
+:root.light .detail-prompt-block {
+  background: var(--surface-glass);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: var(--surface-shadow);
+}
 
 /* ---- Workshop ---- */
 .workshop {
@@ -1120,6 +1183,11 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   flex-direction: column;
   gap: 16px;
   min-height: 360px;
+}
+:root.light .workshop-card {
+  background: var(--surface-glass);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: var(--surface-shadow);
 }
 .workshop-card-header {
   display: flex;
@@ -1195,6 +1263,9 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   max-height: 280px;
   overflow-y: auto;
 }
+:root.light .workshop-output {
+  background: rgba(86, 70, 54, 0.04);
+}
 .workshop-output.empty {
   display: flex;
   align-items: center;
@@ -1213,6 +1284,9 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   flex-direction: column;
   gap: 8px;
   transition: border-color var(--transition-fast);
+}
+:root.light .workshop-brainstorm-option {
+  background: rgba(86, 70, 54, 0.05);
 }
 .workshop-brainstorm-option:hover { border-color: rgba(196, 168, 114, 0.3); }
 .workshop-brainstorm-option-title {
@@ -1238,6 +1312,11 @@ textarea.text-input { min-height: 180px; font-family: var(--font-mono); font-siz
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+:root.light .workshop-sketchpad {
+  background: var(--surface-glass);
+  border: 1px solid rgba(112, 93, 67, 0.14);
+  box-shadow: var(--surface-shadow);
 }
 .workshop-sketchpad textarea {
   width: 100%;
