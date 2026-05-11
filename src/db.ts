@@ -1,7 +1,5 @@
 import Database from 'better-sqlite3';
-import { readFileSync } from 'node:fs';
-import { mkdirSync } from 'node:path';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 

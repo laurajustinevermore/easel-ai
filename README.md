@@ -53,6 +53,8 @@ npm run dev
 
 Then open <http://localhost:5178>.
 
+> Note: If you clone the original repo, you may need the fixes in this fork first. Make sure `dotenv` is installed, your `.env` file is filled in, and the `data/` directory is present before starting the app.
+
 ## Configuration
 
 All config is via environment variables. See [`.env.example`](./.env.example) for the full list.
