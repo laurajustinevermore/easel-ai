@@ -25,6 +25,9 @@ function columnExists(table: string, column: string): boolean {
 if (!columnExists('presets', 'type')) {
   db.exec(`ALTER TABLE presets ADD COLUMN type TEXT NOT NULL DEFAULT 'character'`);
 }
+if (!columnExists('tasks', 'reference_image_paths')) {
+  db.exec(`ALTER TABLE tasks ADD COLUMN reference_image_paths TEXT`);
+}
 
 export type PresetType = 'character' | 'style';
 
@@ -58,6 +61,7 @@ export type Task = {
   variant_count: number;
   quality: string;
   reference_image_path: string | null;
+  reference_image_paths: string | null;
   folder_id: string | null;
   favorite: number;
   trashed: number;

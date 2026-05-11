@@ -1,7 +1,8 @@
 /* Vale Design System — champagne bronze on warm obsidian
    Mixed with Sora's layout bones: fixed sidebar, grid gallery, bottom prompt bar. */
 
-:root {
+:root,
+:root.dark {
   --bg-primary: #0c0b09;
   --bg-secondary: #131210;
   --bg-tertiary: #1a1916;
@@ -39,6 +40,29 @@
   --variant-max-height: 360px;
 }
 
+:root.light {
+  --bg-primary: #faf9f7;
+  --bg-secondary: #f3f1ed;
+  --bg-tertiary: #ede9e1;
+  --bg-surface: #e6e1d8;
+
+  --text-primary: #1a1410;
+  --text-secondary: #54483c;
+  --text-accent: #2a1f0a;
+  --text-muted: #8b7d70;
+
+  --gold: #b8931a;
+  --gold-bright: #c4a72f;
+  --gold-dim: #8a6f1a;
+  --gold-glow: rgba(184, 147, 26, 0.15);
+  --gold-ember: rgba(184, 147, 26, 0.08);
+
+  --border: #ddd6ca;
+  --border-hover: #cfc2a4;
+
+  --danger: #a85d50;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -63,6 +87,7 @@ body {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   grid-template-rows: 1fr auto;
+  transition: background-color var(--transition), color var(--transition);
 }
 
 /* ---- Icons (Lucide-style inline SVG) ---- */
@@ -82,6 +107,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+:root.light .sidebar {
+  background: rgba(240, 238, 233, 0.9);
 }
 
 .brand {
@@ -103,6 +133,25 @@ body {
   border: 1px solid rgba(196, 168, 114, 0.2);
 }
 .brand-mark .icon { width: 22px; height: 22px; }
+
+.detail-ref-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.detail-ref-grid img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(196, 168, 114, 0.25);
+}
+
+.theme-toggle {
+  margin-left: auto;
+}
 .brand-text {
   display: flex;
   flex-direction: column;

@@ -178,10 +178,23 @@ type PresetStackEntry = {
   position: number;
 };
 
-type TaskWithVariants = Task & {
+type TaskWithVariants = Omit<Task, 'reference_image_paths'> & {
   variants: Variant[];
   presets: PresetStackEntry[];
+  reference_image_paths: string[];
 };
+
+function parseReferencePaths(json: string | null | undefined, fallback: string | null | undefined): string[] {
+  if (json) {
+    try {
+      const parsed = JSON.parse(json);
+      if (Array.isArray(parsed)) return parsed.filter((x): x is string => typeof x === 'string' && x.length > 0);
+    } catch {
+      // Fall through to the legacy single-reference column.
+    }
+  }
+  return fallback ? [fallback] : [];
+}
 
 function presetsForTask(taskId: string): PresetStackEntry[] {
   return db
@@ -201,7 +214,12 @@ function taskWithVariants(taskId: string): TaskWithVariants | null {
   const variants = db
     .prepare('SELECT * FROM variants WHERE task_id = ? ORDER BY idx ASC')
     .all(taskId) as Variant[];
-  return { ...task, variants, presets: presetsForTask(taskId) };
+  return {
+    ...task,
+    reference_image_paths: parseReferencePaths(task.reference_image_paths, task.reference_image_path),
+    variants,
+    presets: presetsForTask(taskId),
+  };
 }
 
 app.get('/api/tasks', (c) => {
@@ -256,6 +274,7 @@ app.get('/api/tasks', (c) => {
 
   const out: TaskWithVariants[] = tasks.map((t) => ({
     ...t,
+    reference_image_paths: parseReferencePaths(t.reference_image_paths, t.reference_image_path),
     variants: variantsByTask.get(t.id) ?? [],
     presets: presetsByTask.get(t.id) ?? [],
   }));
@@ -304,6 +323,7 @@ app.post('/api/generate', async (c) => {
     character_preset_ids?: string[];
     style_preset_id?: string | null;
     reference_image_path?: string | null;
+    reference_image_paths?: string[];
     aspect: string;
     n: number;
     quality: Quality;
@@ -344,25 +364,36 @@ app.post('/api/generate', async (c) => {
   const composedPrompt = segments.join('\n\n');
 
   // Gather reference images from character presets + direct attach (style presets don't carry refs)
+  const directReferencePathsRaw = [
+    ...(body.reference_image_paths ?? []),
+    ...(body.reference_image_path ? [body.reference_image_path] : []),
+  ]
+    .filter((x): x is string => typeof x === 'string' && x.length > 0);
+  if (directReferencePathsRaw.length > 8) {
+    return c.json({ error: 'maximum 8 direct reference images allowed' }, 400);
+  }
+  const directReferencePaths = directReferencePathsRaw;
+
   const referencePaths: string[] = [];
   for (const p of characterPresets) {
     if (p.reference_image_path) referencePaths.push(p.reference_image_path);
   }
-  if (body.reference_image_path) referencePaths.push(body.reference_image_path);
+  referencePaths.push(...directReferencePaths);
 
   const taskId = newId('gen');
   const now = Date.now();
 
   db.prepare(
-    `INSERT INTO tasks (id, kind, prompt, preset_id, aspect_ratio, variant_count, quality, reference_image_path, folder_id, status, created_at)
-     VALUES (?, 'image_generation', ?, NULL, ?, ?, ?, ?, ?, 'pending', ?)`,
+    `INSERT INTO tasks (id, kind, prompt, preset_id, aspect_ratio, variant_count, quality, reference_image_path, reference_image_paths, folder_id, status, created_at)
+     VALUES (?, 'image_generation', ?, NULL, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
   ).run(
     taskId,
     body.prompt.trim(),
     body.aspect,
     n,
     body.quality,
-    body.reference_image_path ?? null,
+    directReferencePaths[0] ?? null,
+    directReferencePaths.length > 0 ? JSON.stringify(directReferencePaths) : null,
     body.folder_id ?? null,
     now,
   );

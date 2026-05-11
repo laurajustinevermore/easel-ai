@@ -48,6 +48,7 @@
       <header class="main-header">
         <h1 id="view-title">My media</h1>
         <div class="main-header-meta" id="view-meta"></div>
+        <button class="btn-icon theme-toggle" id="theme-toggle" title="Toggle theme" data-icon="sun"></button>
       </header>
 
       <section id="view-root" class="view-root"></section>
@@ -58,7 +59,7 @@
       <div id="ref-strip" class="ref-strip" hidden></div>
       <div class="prompt-row">
         <button type="button" class="prompt-attach" id="attach-btn" title="Attach reference image" data-icon="paperclip"></button>
-        <input type="file" id="attach-input" accept="image/png,image/webp,image/jpeg" hidden />
+        <input type="file" id="attach-input" accept="image/png,image/webp,image/jpeg" multiple hidden />
         <textarea
           id="prompt-input"
           class="prompt-input"

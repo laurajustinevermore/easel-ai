@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   variant_count INTEGER NOT NULL,
   quality TEXT NOT NULL DEFAULT 'medium', -- low | medium | high
   reference_image_path TEXT,
+  reference_image_paths TEXT,
   folder_id TEXT,
   favorite INTEGER NOT NULL DEFAULT 0,
   trashed INTEGER NOT NULL DEFAULT 0,

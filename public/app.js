@@ -7,9 +7,11 @@ const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach((el) => {
-    if (el.dataset.hydrated === '1') return;
+    if (el.dataset.hydratedIcon === el.dataset.icon) return;
+    el.querySelector('.icon')?.remove();
     el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon));
     el.dataset.hydrated = '1';
+    el.dataset.hydratedIcon = el.dataset.icon;
   });
 }
 
@@ -21,13 +23,14 @@ const state = {
   tasks: [],
   presets: [],
   folders: [],
+  theme: localStorage.getItem('easel:theme') ?? 'dark', // dark | light
   settings: {
     aspect: '2:3',
     variants: 2,
     quality: 'medium',
     characterIds: [],      // ordered list of character preset ids
     styleId: '',           // single style preset id
-    referencePath: null,   // direct single-image attach from prompt bar
+    referencePaths: [],    // array of direct reference images (max 8)
   },
 };
 
@@ -235,15 +238,19 @@ function taskCardHtml(task) {
           .join('');
 
   const presets = task.presets ?? [];
+  const directRefCount = (task.reference_image_paths ?? (task.reference_image_path ? [task.reference_image_path] : [])).length;
+  const refIndicator = directRefCount > 0
+    ? `<span class="task-ref-indicator">◎ ${directRefCount} ref${directRefCount === 1 ? '' : 's'}</span>`
+    : '';
   const presetStackHtml = presets.length
     ? `<div class="task-preset-stack">${presets
         .map(
           (p) =>
             `<span class="task-preset-tag ${p.type}">${p.type === 'style' ? '✦' : '❈'} ${escapeHtml(p.name)} v${p.version}</span>`,
         )
-        .join('')}${task.reference_image_path ? '<span class="task-ref-indicator">◎ ref</span>' : ''}</div>`
-    : task.reference_image_path
-      ? `<div class="task-preset-stack"><span class="task-ref-indicator">◎ ref attached</span></div>`
+        .join('')}${refIndicator}</div>`
+    : directRefCount > 0
+      ? `<div class="task-preset-stack">${refIndicator}</div>`
       : '';
 
   const favoriteIconSvg = task.favorite ? icon('star-filled', { size: 12 }) : icon('star', { size: 12 });
@@ -922,10 +929,18 @@ async function renderDetail(taskId) {
         .join('')}</div>`
     : '';
 
-  const refBlock = task.reference_image_path
+  const directRefs = task.reference_image_paths ?? (task.reference_image_path ? [task.reference_image_path] : []);
+  const refBlock = directRefs.length
     ? `<div>
-        <div class="input-label">Direct reference</div>
-        <img src="/refs/${task.reference_image_path}" alt="reference" style="max-width: 180px; border-radius: 8px; border: 1px solid rgba(196, 168, 114, 0.25); margin-top: 6px;" />
+        <div class="input-label">Direct reference${directRefs.length === 1 ? '' : 's'}</div>
+        <div class="detail-ref-grid">
+          ${directRefs
+            .map(
+              (refPath, idx) =>
+                `<img src="/refs/${refPath}" alt="reference ${idx + 1}" />`,
+            )
+            .join('')}
+        </div>
        </div>`
     : '';
 
@@ -969,7 +984,7 @@ async function renderDetail(taskId) {
     state.settings.quality = task.quality;
     state.settings.characterIds = characterPresetsInTask.map((p) => p.id);
     state.settings.styleId = stylePresetInTask?.id ?? '';
-    state.settings.referencePath = task.reference_image_path;
+    state.settings.referencePaths = task.reference_image_paths ?? (task.reference_image_path ? [task.reference_image_path] : []);
     syncChips();
     renderRefStrip();
     goto('media');
@@ -1002,7 +1017,7 @@ async function renderDetail(taskId) {
       const blob = await resp.blob();
       const file = new File([blob], 'remix.png', { type: blob.type || 'image/png' });
       const up = await uploadFile(file);
-      state.settings.referencePath = up.path;
+      state.settings.referencePaths = [up.path];
       state.settings.aspect = task.aspect_ratio;
       state.settings.variants = task.variant_count;
       state.settings.quality = task.quality;
@@ -1171,26 +1186,28 @@ function wireChips() {
   };
 }
 
-// ---- Reference attach (prompt-bar direct single image) ----
+// ---- Reference attach (prompt-bar direct multiple images, max 8) ----
 function renderRefStrip() {
   const strip = $('#ref-strip');
   strip.innerHTML = '';
-  if (!state.settings.referencePath) {
+  if (state.settings.referencePaths.length === 0) {
     strip.hidden = true;
     return;
   }
   strip.hidden = false;
-  const thumb = document.createElement('div');
-  thumb.className = 'ref-thumb';
-  thumb.innerHTML = `
-    <img src="/refs/${state.settings.referencePath}" alt="reference" />
-    <button type="button" class="remove" title="Remove">×</button>
-    <span class="ref-thumb-label">Ref</span>`;
-  thumb.querySelector('.remove').onclick = () => {
-    state.settings.referencePath = null;
-    renderRefStrip();
-  };
-  strip.appendChild(thumb);
+  for (const [idx, refPath] of state.settings.referencePaths.entries()) {
+    const thumb = document.createElement('div');
+    thumb.className = 'ref-thumb';
+    thumb.innerHTML = `
+      <img src="/refs/${refPath}" alt="reference ${idx + 1}" />
+      <button type="button" class="remove" title="Remove">×</button>
+      <span class="ref-thumb-label">Ref ${idx + 1}</span>`;
+    thumb.querySelector('.remove').onclick = () => {
+      state.settings.referencePaths.splice(idx, 1);
+      renderRefStrip();
+    };
+    strip.appendChild(thumb);
+  }
 }
 
 function wireAttach() {
@@ -1198,13 +1215,20 @@ function wireAttach() {
   const input = $('#attach-input');
   btn.onclick = () => input.click();
   input.onchange = async () => {
-    const file = input.files?.[0];
-    if (!file) return;
+    const files = [...(input.files ?? [])];
+    if (files.length === 0) return;
+    const slotsLeft = 8 - state.settings.referencePaths.length;
+    if (slotsLeft <= 0) {
+      toast('Maximum 8 reference images allowed', 'err');
+      return;
+    }
+    const filesToUpload = files.slice(0, slotsLeft);
     try {
-      const up = await uploadFile(file);
-      state.settings.referencePath = up.path;
+      const uploaded = await Promise.all(filesToUpload.map(uploadFile));
+      state.settings.referencePaths.push(...uploaded.map((up) => up.path));
       renderRefStrip();
-      toast('Reference attached');
+      const skipped = files.length - filesToUpload.length;
+      toast(`Attached ${uploaded.length} reference${uploaded.length === 1 ? '' : 's'} (${state.settings.referencePaths.length}/8)${skipped ? ` · skipped ${skipped}` : ''}`);
     } catch (e) {
       toast(e.message, 'err');
     } finally {
@@ -1226,7 +1250,7 @@ async function handleGenerate(ev) {
 
   const characterIds = [...state.settings.characterIds];
   const styleId = state.settings.styleId || null;
-  const referencePath = state.settings.referencePath;
+  const referencePaths = [...state.settings.referencePaths];
   const submittedPrompt = prompt;
   const submittedAspect = state.settings.aspect;
   const submittedVariants = state.settings.variants;
@@ -1256,7 +1280,7 @@ async function handleGenerate(ev) {
     aspect_ratio: submittedAspect,
     variant_count: submittedVariants,
     quality: submittedQuality,
-    reference_image_path: referencePath,
+    reference_image_paths: referencePaths,
     folder_id: submittedFolderId,
     favorite: 0,
     trashed: 0,
@@ -1286,7 +1310,7 @@ async function handleGenerate(ev) {
         prompt: submittedPrompt,
         character_preset_ids: characterIds,
         style_preset_id: styleId,
-        reference_image_path: referencePath,
+        reference_image_paths: referencePaths,
         aspect: submittedAspect,
         n: submittedVariants,
         quality: submittedQuality,
@@ -1301,8 +1325,8 @@ async function handleGenerate(ev) {
       setViewTitle();
       toast(`Generated ${task.variants.length} image${task.variants.length === 1 ? '' : 's'}`);
     }
-    // Clear the direct reference after a successful gen — character/style persist
-    state.settings.referencePath = null;
+    // Clear the direct references after a successful gen — character/style persist
+    state.settings.referencePaths = [];
     renderRefStrip();
   } catch (e) {
     // If polling already resolved the pending task, swallow — the user already sees the result.
@@ -1368,6 +1392,7 @@ async function boot() {
 
   wireChips();
   wireAttach();
+  wireThemeToggle();
   wireKeyboard();
 
   window.addEventListener('popstate', () => routeFromHash());
@@ -1375,6 +1400,7 @@ async function boot() {
   await Promise.all([loadFolders(), loadPresets()]);
   syncChips();
   renderRefStrip();
+  applyTheme(state.theme);
   hydrateIcons();
 
   routeFromHash();
@@ -1414,6 +1440,28 @@ function wireKeyboard() {
       }
     }
   });
+}
+
+// ---- Theme toggle ----
+function applyTheme(theme) {
+  state.theme = theme;
+  localStorage.setItem('easel:theme', theme);
+  document.documentElement.classList.remove('dark', 'light');
+  document.documentElement.classList.add(theme);
+  const toggleBtn = $('#theme-toggle');
+  if (toggleBtn) {
+    toggleBtn.dataset.icon = theme === 'dark' ? 'sun' : 'moon';
+    hydrateIcons(toggleBtn);
+  }
+}
+
+function wireThemeToggle() {
+  const btn = $('#theme-toggle');
+  if (!btn) return;
+  btn.onclick = () => {
+    const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+  };
 }
 
 function routeFromHash() {
