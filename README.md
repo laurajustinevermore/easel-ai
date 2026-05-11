@@ -43,7 +43,7 @@
 Requires Node.js 20+. Bring your own OpenAI API key.
 
 ```bash
-git clone https://github.com/codependentai/easel-ai.git
+git clone https://github.com/laurajustinevermore/easel-ai.git
 cd easel-ai
 npm install
 cp .env.example .env
@@ -53,7 +53,7 @@ npm run dev
 
 Then open <http://localhost:5178>.
 
-> Note: If you clone the original repo, you may need the fixes in this fork first. Make sure `dotenv` is installed, your `.env` file is filled in, and the `data/` directory is present before starting the app.
+> Note: This is a fork of `https://github.com/codependentai/easel-ai` with setup fixes for local install. If you want the original upstream repo, use that URL instead, but this fork includes the working `dotenv` and database setup fixes already.
 
 ## Configuration
 
