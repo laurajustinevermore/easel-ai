@@ -14,6 +14,12 @@
 
 <p align="center"><em>Part of the <a href="https://github.com/codependentai/resonant">Resonant</a> ecosystem — local-first creative tools that outlive the platforms they connect to.</em></p>
 
+> **This is a fork of [`codependentai/easel-ai`](https://github.com/codependentai/easel-ai)** — all credit to Mary and the original team for building something worth building on. We've tweaked it to fit the way we actually use it, and thought you might like the changes too:
+> - Working `dotenv` and database setup for local install
+> - Multiple reference image support
+> - Light/dark theme toggle
+> - **Prompt source/credit field** — optionally note where a prompt came from; displayed on gallery cards and detail view
+
 <p align="center">
   <a href="https://x.com/codependent_ai"><img src="https://img.shields.io/badge/𝕏-@codependent__ai-000000?logo=x&logoColor=white" alt="X/Twitter" /></a>
   <a href="https://tiktok.com/@codependentai"><img src="https://img.shields.io/badge/TikTok-@codependentai-000000?logo=tiktok&logoColor=white" alt="TikTok" /></a>
@@ -53,8 +59,6 @@ npm run dev
 
 Then open <http://localhost:5178>.
 
-> Note: This is a fork of `https://github.com/codependentai/easel-ai` with setup fixes for local install. If you want the original upstream repo, use that URL instead, but this fork includes the working `dotenv` and database setup fixes already.
-
 ## Configuration
 
 All config is via environment variables. See [`.env.example`](./.env.example) for the full list.
@@ -62,7 +66,7 @@ All config is via environment variables. See [`.env.example`](./.env.example) fo
 | Variable | Default | Notes |
 |---|---|---|
 | `OPENAI_API_KEY` | *(required)* | Get one at <https://platform.openai.com/api-keys>. |
-| `EASEL_IMAGE_MODEL` | `gpt-image-1.5` | Set to `gpt-image-2` for the newer model — that one **requires a verified organisation** on `platform.openai.com`. |
+| `EASEL_IMAGE_MODEL` | `gpt-image-2` | Image generation model. `gpt-image-2` **requires a verified organisation** on `platform.openai.com`. |
 | `EASEL_TEXT_MODEL` | `gpt-5.4` | Used by the Workshop. Must support image inputs (vision) for `from-image` to work. |
 | `PORT` | `5178` | HTTP port. |
 
@@ -91,7 +95,7 @@ The frontend talks to a small REST API on the same origin. If you want to drive 
 | `GET` | `/api/tasks?view=media\|favorites\|trash\|folder&folder_id=…` | List tasks with their variants and presets. |
 | `GET` | `/api/tasks/:id` | One task. |
 | `PATCH` | `/api/tasks/:id` | Toggle favourite, trash, or move to folder. |
-| `POST` | `/api/generate` | Run a generation. Body: `{ prompt, character_preset_ids?, style_preset_id?, reference_image_path?, aspect, n, quality, folder_id? }`. |
+| `POST` | `/api/generate` | Run a generation. Body: `{ prompt, character_preset_ids?, style_preset_id?, reference_image_path?, aspect, n, quality, folder_id?, prompt_source? }`. |
 | `GET` | `/api/presets` | List active presets. |
 | `POST` | `/api/presets` | Create or fork a preset. |
 | `PATCH` | `/api/presets/:id` | Edit / archive a preset. |
