@@ -70,6 +70,15 @@
         <span class="prompt-kbd" aria-hidden="true">↵</span>
         <button type="submit" class="prompt-send" id="send-btn" title="Create image (Enter)" data-icon="arrow-up"></button>
       </div>
+      <div class="prompt-source-row" id="prompt-source-row" hidden>
+        <input
+          type="text"
+          id="prompt-source-input"
+          class="prompt-source-input"
+          placeholder="Where did this prompt come from? (optional)"
+          autocomplete="off"
+        />
+      </div>
       <div class="prompt-controls">
         <div class="chip chip-static" id="chip-media"><span class="chip-icon" data-icon="image"></span><span class="chip-value">Image</span></div>
         <button type="button" class="chip chip-picker" id="chip-aspect" data-value="2:3">
@@ -86,6 +95,9 @@
         </button>
         <button type="button" class="chip chip-picker" id="chip-style">
           <span class="chip-icon" data-icon="palette"></span><span class="chip-value">No style</span>
+        </button>
+        <button type="button" class="chip chip-picker" id="chip-source">
+          <span class="chip-icon" data-icon="link"></span><span class="chip-value">Add source</span>
         </button>
       </div>
     </form>

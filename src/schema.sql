@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   reference_image_path TEXT,
   reference_image_paths TEXT,
   folder_id TEXT,
+  prompt_source TEXT,
   favorite INTEGER NOT NULL DEFAULT 0,
   trashed INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'pending', -- pending | succeeded | failed

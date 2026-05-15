@@ -341,6 +341,7 @@ app.post('/api/generate', async (c) => {
     n: number;
     quality: Quality;
     folder_id?: string | null;
+    prompt_source?: string | null;
   };
 
   if (!body.prompt?.trim()) return c.json({ error: 'prompt required' }, 400);
@@ -397,8 +398,8 @@ app.post('/api/generate', async (c) => {
   const now = Date.now();
 
   db.prepare(
-    `INSERT INTO tasks (id, kind, prompt, preset_id, aspect_ratio, variant_count, quality, reference_image_path, reference_image_paths, folder_id, status, created_at)
-     VALUES (?, 'image_generation', ?, NULL, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+    `INSERT INTO tasks (id, kind, prompt, preset_id, aspect_ratio, variant_count, quality, reference_image_path, reference_image_paths, folder_id, prompt_source, status, created_at)
+     VALUES (?, 'image_generation', ?, NULL, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
   ).run(
     taskId,
     body.prompt.trim(),
@@ -408,6 +409,7 @@ app.post('/api/generate', async (c) => {
     directReferencePaths[0] ?? null,
     directReferencePaths.length > 0 ? JSON.stringify(directReferencePaths) : null,
     body.folder_id ?? null,
+    body.prompt_source?.trim() || null,
     now,
   );
 

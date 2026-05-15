@@ -314,6 +314,7 @@ function taskCardHtml(task) {
         <div class="task-label">${kindLabel}</div>
         ${presetStackHtml}
         <div class="task-prompt">${escapeHtml(task.prompt)}</div>
+        ${task.prompt_source ? `<div class="task-source">via ${escapeHtml(task.prompt_source)}</div>` : ''}
       </div>
       <div class="task-footer">
         <span>${formatTime(task.created_at)}</span>
@@ -1028,6 +1029,7 @@ async function renderDetail(taskId) {
         <div class="detail-prompt-block">${escapeHtml(task.prompt)}</div>
         <button class="detail-copy-btn" id="copy-prompt" title="Copy prompt to clipboard">${icon('copy', { size: 14 })}</button>
       </div>
+      ${task.prompt_source ? `<div class="detail-source">via <span class="detail-source-value">${escapeHtml(task.prompt_source)}</span></div>` : ''}
     </div>`;
 
   $('#back-btn').onclick = () => history.back();
@@ -1240,6 +1242,32 @@ function wireChips() {
   };
 }
 
+// ---- Prompt source chip toggle ----
+function initSourceChip() {
+  const chip = $('#chip-source');
+  const row = $('#prompt-source-row');
+  const input = $('#prompt-source-input');
+  if (!chip || !row || !input) return;
+
+  chip.onclick = () => {
+    const isVisible = !row.hidden;
+    row.hidden = isVisible;
+    if (!isVisible) {
+      input.focus();
+    } else {
+      input.value = '';
+      chip.classList.remove('has-value');
+      chip.querySelector('.chip-value').textContent = 'Add source';
+    }
+  };
+
+  input.addEventListener('input', () => {
+    const hasValue = input.value.trim().length > 0;
+    chip.classList.toggle('has-value', hasValue);
+    chip.querySelector('.chip-value').textContent = hasValue ? input.value.trim() : 'Add source';
+  });
+}
+
 // ---- Reference attach (prompt-bar direct multiple images, max 8) ----
 function renderRefStrip() {
   const strip = $('#ref-strip');
@@ -1310,6 +1338,7 @@ async function handleGenerate(ev) {
   const submittedVariants = state.settings.variants;
   const submittedQuality = state.settings.quality;
   const submittedFolderId = state.view === 'folder' ? state.folderId : null;
+  const submittedSource = ($('#prompt-source-input')?.value || '').trim() || null;
 
   // Build the preset stack we'll render optimistically
   const optimisticPresets = [];
@@ -1369,6 +1398,7 @@ async function handleGenerate(ev) {
         n: submittedVariants,
         quality: submittedQuality,
         folder_id: submittedFolderId,
+        prompt_source: submittedSource,
       },
     });
     // Replace pending with real (if polling didn't already swap it out)
@@ -1382,6 +1412,13 @@ async function handleGenerate(ev) {
     // Clear the direct references after a successful gen — character/style persist
     state.settings.referencePaths = [];
     renderRefStrip();
+    // Clear source field
+    const sourceInput = $('#prompt-source-input');
+    if (sourceInput) { sourceInput.value = ''; }
+    const sourceRow = $('#prompt-source-row');
+    const sourceChip = $('#chip-source');
+    if (sourceRow) sourceRow.hidden = true;
+    if (sourceChip) { sourceChip.classList.remove('has-value'); sourceChip.querySelector('.chip-value').textContent = 'Add source'; }
   } catch (e) {
     // If polling already resolved the pending task, swallow — the user already sees the result.
     const stillPending = state.tasks.some((t) => t.id === pendingId);
@@ -1454,6 +1491,7 @@ async function boot() {
   await Promise.all([loadFolders(), loadPresets()]);
   syncChips();
   renderRefStrip();
+  initSourceChip();
   applyTheme(state.theme);
   hydrateIcons();
 
