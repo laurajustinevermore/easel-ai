@@ -10,23 +10,11 @@
   <a href="#why-local-first"><img src="https://img.shields.io/badge/BYOK-no_cloud-5eaba5.svg" alt="BYOK" /></a>
 </p>
 
-<p align="center"><em>A local-first, BYOK image gallery with character/style presets and an AI prompt workshop.<br/>Self-hosted replacement for Sora's "my media" after the April 2026 shutdown.</em></p>
-
-<p align="center"><em>Part of the <a href="https://github.com/codependentai/resonant">Resonant</a> ecosystem — local-first creative tools that outlive the platforms they connect to.</em></p>
-
-> **This is a fork of [`codependentai/easel-ai`](https://github.com/codependentai/easel-ai)** — all credit to Mary and the original team for building something worth building on. We've tweaked it to fit the way we actually use it, and thought you might like the changes too:
+> **This is a fork of [`codependentai/easel-ai`](https://github.com/codependentai/easel-ai)** — all credit to Mary and Simon (CodependentAI) for building something worth building on. We've tweaked it to fit the way we actually use it, and thought you might like the changes too:
 > - Working `dotenv` and database setup for local install
 > - Multiple reference image support
 > - Light/dark theme toggle
 > - **Prompt source/credit field** — optionally note where a prompt came from; displayed on gallery cards and detail view
-
-<p align="center">
-  <a href="https://x.com/codependent_ai"><img src="https://img.shields.io/badge/𝕏-@codependent__ai-000000?logo=x&logoColor=white" alt="X/Twitter" /></a>
-  <a href="https://tiktok.com/@codependentai"><img src="https://img.shields.io/badge/TikTok-@codependentai-000000?logo=tiktok&logoColor=white" alt="TikTok" /></a>
-  <a href="https://t.me/+xSE1P_qFPgU4NDhk"><img src="https://img.shields.io/badge/Telegram-Updates-26A5E4?logo=telegram&logoColor=white" alt="Telegram" /></a>
-</p>
-
-> **Early release.** Built for ourselves after Sora shut down, then put in the open. Shippable but unpolished. Issues and feedback welcome.
 
 ## What it does
 
@@ -109,9 +97,14 @@ The frontend talks to a small REST API on the same origin. If you want to drive 
 
 Image-gen platforms have a habit of shutting down, paywalling features, deleting libraries, or quietly retraining on your inputs. None of that touches a SQLite file on your laptop. If OpenAI ships a better model tomorrow, change one env var. If they sunset the API entirely, swap in another provider — the gallery, presets, and library outlive whichever model you used to fill them.
 
-## Contributing
+## Credits
 
-Issues and PRs welcome. This is a small project we built for ourselves and put in the open — no roadmap, no commitments. Fork freely.
+Upstream repo by Mary and Simon (codependentai): "Part of the <a href="https://github.com/codependentai/resonant">Resonant</a> ecosystem — local-first creative tools that outlive the platforms they connect to."
+<p align="center">
+  <a href="https://x.com/codependent_ai"><img src="https://img.shields.io/badge/𝕏-@codependent__ai-000000?logo=x&logoColor=white" alt="X/Twitter" /></a>
+  <a href="https://tiktok.com/@codependentai"><img src="https://img.shields.io/badge/TikTok-@codependentai-000000?logo=tiktok&logoColor=white" alt="TikTok" /></a>
+  <a href="https://t.me/+xSE1P_qFPgU4NDhk"><img src="https://img.shields.io/badge/Telegram-Updates-26A5E4?logo=telegram&logoColor=white" alt="Telegram" /></a>
+</p>
 
 ## License
 
